@@ -29,6 +29,15 @@ app.get('/api/courses', (req, res) => {
     res.json(courses);
 });
 
+// New route to get course details by id
+app.get('/api/courses/:id', (req, res) => {
+    const course = courses.find(c => c.id === req.params.id);
+    if (!course) {
+        return res.status(404).json({ error: 'Course not found' });
+    }
+    res.json(course);
+});
+
 app.post('/api/register', async (req, res) => {
     const { name, email, phone, address, courseId } = req.body;
     
