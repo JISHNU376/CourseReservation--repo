@@ -1,9 +1,15 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+const User = require('./models/User');
+const db = require('./config/db');
 
 const app = express();
 const PORT = 8000;
+
+// Connect to database
+db.connect();
 
 // Middleware
 app.use(express.json());
@@ -23,10 +29,10 @@ app.get('/api/courses', (req, res) => {
     res.json(courses);
 });
 
-app.post('/api/register', (req, res) => {
-    const { name, email, courseId } = req.body;
+app.post('/api/register', async (req, res) => {
+    const { name, email, phone, address, courseId } = req.body;
     
-    if (!name || !email || !courseId) {
+    if (!name || !email || !phone || !address || !courseId) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     
@@ -35,7 +41,24 @@ app.post('/api/register', (req, res) => {
         return res.status(404).json({ error: 'Course not found' });
     }
     
-    registrations.push({ name, email, courseId, date: new Date() });
+    // Store in in-memory registrations array
+    registrations.push({ name, email, phone, address, courseId, date: new Date() });
+    
+    // Create new user in database
+    try {
+        const user = new User({
+            name,
+            email,
+            phone,
+            address,
+            role: 'student',
+            password: 'defaultpassword' // You may want to handle password properly
+        });
+        await user.save();
+    } catch (error) {
+        return res.status(500).json({ error: 'Error saving user to database' });
+    }
+    
     res.json({ success: true });
 });
 
