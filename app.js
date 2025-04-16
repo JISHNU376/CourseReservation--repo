@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const formData = {
             name: document.getElementById('student-name').value,
             email: document.getElementById('student-email').value,
+            phone: document.getElementById('student-phone').value,
+            address: document.getElementById('student-address').value,
             courseId: document.getElementById('course-select').value
         };
         
