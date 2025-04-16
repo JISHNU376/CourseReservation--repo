@@ -71,9 +71,32 @@ app.post('/api/register', async (req, res) => {
     res.json({ success: true });
 });
 
-// Serve frontend
-app.get('*', (req, res) => {
+// Simple login API route (mock authentication)
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Missing email or password' });
+    }
+    // For demo, accept any email/password combination where password is 'password'
+    if (password === 'password') {
+        return res.json({ success: true });
+    } else {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
+});
+
+// Serve login.html as root page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+// Serve other frontend pages
+app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/course.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'course.html'));
 });
 
 app.listen(PORT, () => {
