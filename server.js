@@ -9,7 +9,8 @@ const app = express();
 const PORT = 8000;
 
 // Connect to database
-db.connect();
+const connectDB = require('./config/db');
+connectDB();
 
 // Middleware
 app.use(express.json());
@@ -22,7 +23,44 @@ let courses = [
     { id: 'ENG105', name: 'Academic Writing', description: 'Improve your writing skills', instructor: 'Dr. Williams', credits: 3 }
 ];
 
+const Course = require('./models/Course');
 let registrations = [];
+
+// API Routes for Course Management
+app.post('/api/courses', async (req, res) => {
+    const { name, description, instructor, credits, capacity } = req.body;
+    try {
+        const course = await Course.create({ name, description, instructor, credits, capacity });
+        res.status(201).json(course);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.put('/api/courses/:id', async (req, res) => {
+    const { name, description, instructor, credits, capacity } = req.body;
+    try {
+        const course = await Course.findByIdAndUpdate(req.params.id, { name, description, instructor, credits, capacity }, { new: true, runValidators: true });
+        if (!course) {
+            return res.status(404).json({ error: 'Course not found' });
+        }
+        res.json(course);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.delete('/api/courses/:id', async (req, res) => {
+    try {
+        const course = await Course.findByIdAndDelete(req.params.id);
+        if (!course) {
+            return res.status(404).json({ error: 'Course not found' });
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting course' });
+    }
+});
 
 // API Routes
 app.get('/api/courses', (req, res) => {
